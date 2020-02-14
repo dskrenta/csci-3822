@@ -25,12 +25,10 @@ class LanguageModel:
         self.words = self.corpus.split()
         self.freqs = Counter(self.words)
         self.freqs['<unk>'] = 0
-
         for k, v in list(self.freqs.items()):
             if v == 1:
-                self.freqs['<unk>'] += 1    # increment the frequency of <unk>
-                del self.freqs[k]   # delete all tokens with a frequency of 1
-
+                self.freqs['<unk>'] += 1    # increment freq of <unk>
+                del self.freqs[k]   # remove all tokens with freq of 1
         self.num_tokens = sum(self.freqs.values())
 
     def unigram_probability(self, word):
@@ -59,9 +57,9 @@ class LanguageModel:
         """Computes bigram probability"""
 
         if self.smoothing:
-            return (self.corpus.count('{} {}'.format(bigram[0], bigram[1])) + 1)  / (self.corpus.count(bigram[0]) + len(self.freqs))
+            return (self.corpus.count(bigram[0] + ' ' + bigram[1]) + 1)  / (self.corpus.count(bigram[0]) + len(self.freqs))
         else:
-            return self.corpus.count('{} {}'.format(bigram[0], bigram[1]))  / self.corpus.count(bigram[0])
+            return self.corpus.count(bigram[0] + ' ' + bigram[1])  / self.corpus.count(bigram[0])
 
     def bigram_model(self, sentence):
         """Bigram model"""
@@ -172,6 +170,9 @@ def main():
     plt.xlabel('Probability')
     plt.ylabel('Frequency')
     plt.savefig('hw2-unigram-histogram.pdf', bbox_inches='tight')
+
+    # Clear figure
+    plt.clf()
 
     # Bigram histogram
     plt.hist([bigram_probs, my_test_bigram_probs], bins=np.logspace(np.log10(10**bigram_min_exponent),np.log10(1.0)), label = ["Test Bigram Probabilities", "My Test Bigram Probabilities"], stacked = True)
